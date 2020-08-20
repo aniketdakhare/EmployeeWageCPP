@@ -1,6 +1,4 @@
-Employee, Monthly Wage
-Employee_1, 1200
-Employee_2, 1680
-Employee_3, 2080
-Employee_4, 1280
-Employee_5, 1200
+Employee, Month_1, Month_2, Month_3
+Employee_1, 1760, 1280, 1840
+Employee_2, 1760, 1280, 1680
+Employee_3, 1680, 1600, 1600

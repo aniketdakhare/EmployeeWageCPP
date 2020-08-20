@@ -7,18 +7,28 @@
 
 using namespace std;
 
-vector <int> monthlyWages;
+vector <vector <int>> totalMonthlyWages;
 fstream fileStream;
 
-void writeFile(string file)
+void writeFile(string file, int totalMonths)
 {
     fileStream.open(file, ios::out | ios::trunc);
     if (fileStream.is_open())
     {
-        fileStream << "Employee, Monthly Wage\n";
-        for (int i = 0; i < monthlyWages.size(); i++)
+        fileStream << "Employee";
+        for (int month = 0; month < totalMonths ;month++)
         {
-            fileStream << "Employee_" << (i + 1) << ", "<< (monthlyWages[i]) << "\n";        
+            fileStream << ", Month_" << (month + 1);
+        }
+        vector <int> wages;
+        for (int employee = 0; employee < totalMonthlyWages.size(); employee++)
+        {
+            fileStream << "\nEmployee_" << (employee + 1);
+            wages = totalMonthlyWages[employee];
+            for (int month = 0; month < totalMonths; month++)
+            {
+                fileStream << ", " << wages[month];
+            }
         }
     }
     fileStream.close();
@@ -36,10 +46,11 @@ int getWorkingHours()
     int totalWorkingDays = 0;
     srand(time(0));
     
-    while(totalEmpHrs <= MAX_HRS_IN_MONTH && totalWorkingDays <= NUM_OF_WORKING_DAYS)
+    while(totalEmpHrs <= MAX_HRS_IN_MONTH && totalWorkingDays < NUM_OF_WORKING_DAYS)
     {
         totalWorkingDays++;
         int empCheck = rand() % 3;
+        
         switch(empCheck)
         {
             case IS_PART_TIME:
@@ -62,13 +73,22 @@ int main()
     int totalEmployees;
     cout << "\nEnter total number of employees. \n";
     cin >> totalEmployees;
+
+    int totalMonths;
+    cout << "\nEnter nunber of Months. \n";
+    cin >> totalMonths;
     
     for (int i = 0; i < totalEmployees; i++)
     {
-        sleep(2);
-        int empWage = getWorkingHours() * EMP_RATE_PER_HOUR;
-        monthlyWages.push_back(empWage);
-        cout << "Monthly Wage for Employee_" << (i + 1) << " = " << empWage << endl;
+        vector <int> monthlyWages;
+        for (int i = 0; i < totalMonths; i++)
+        {
+            sleep(1.5);
+            int empWage = getWorkingHours() * EMP_RATE_PER_HOUR;
+            monthlyWages.push_back(empWage);
+            cout << "Monthly Wage for Employee_" << (i + 1) << " = " << empWage << endl;   
+        }
+        totalMonthlyWages.push_back(monthlyWages);
     }
-    writeFile("EmployeeWageDetails.csv");
+    writeFile("EmployeeWageDetails.csv", totalMonths);
 }
