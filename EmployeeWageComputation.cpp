@@ -7,13 +7,13 @@
 
 using namespace std;
 
-struct companyDetails
+struct CompanyDetails
 {
     string companyName;
     int NUM_OF_WORKING_DAYS;
     int MAX_HRS_IN_MONTH;
     int EMP_RATE_PER_HOUR;
-    companyDetails()
+    CompanyDetails()
     {
         cout << "\nEnter Company Name. \n";
         cin >> companyName;
@@ -51,7 +51,16 @@ void writeFile(string file, int totalMonths, int employee, vector <int> wages, s
     fileStream.close();
 }
 
-int getWorkingHours(struct companyDetails company)
+struct EmployeeWageBuilder
+{
+    int getWorkingHours(CompanyDetails);
+    int getEmployeeWage(CompanyDetails company)
+    {
+        return getWorkingHours(company) * company.EMP_RATE_PER_HOUR;
+    }
+};
+
+int EmployeeWageBuilder :: getWorkingHours(CompanyDetails company)
 {
     const int IS_PART_TIME = 1;
     const int IS_FULL_TIME = 2;
@@ -86,8 +95,8 @@ int getWorkingHours(struct companyDetails company)
 
 void wageloader()
 {
-    struct companyDetails company;
-    int EMP_RATE_PER_HOUR = company.EMP_RATE_PER_HOUR;
+    struct CompanyDetails company;
+    struct EmployeeWageBuilder employeeWageBuilder;
     int totalEmployees;
     cout << "\nEnter total number of employees. \n";
     cin >> totalEmployees;
@@ -101,8 +110,8 @@ void wageloader()
         vector <int> monthlyWages;
         for (int i = 0; i < totalMonths; i++)
         {
-            sleep(1.5);
-            int empWage = getWorkingHours(company) * EMP_RATE_PER_HOUR;
+            sleep(1.9);
+            int empWage = employeeWageBuilder.getEmployeeWage(company);
             monthlyWages.push_back(empWage);
             cout << "Monthly Wage for Employee_" << (i + 1) << " = " << empWage << endl;   
         }
