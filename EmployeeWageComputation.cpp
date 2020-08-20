@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <list>
 #include <vector>
 #include <fstream>
 #include <unistd.h>
@@ -60,7 +61,7 @@ void writeFile(string file, int totalMonths, int employee, vector <int> wages, s
 
 struct EmployeeWageBuilder
 {
-    vector <CompanyDetails> companyWages;
+    list <CompanyDetails> companyWages;
     int getWorkingHours(CompanyDetails);
     int getEmployeeWage(CompanyDetails company)
     {
@@ -103,28 +104,28 @@ int EmployeeWageBuilder :: getWorkingHours(CompanyDetails company)
 
 void wageloader(EmployeeWageBuilder employeeWageBuilder, int numberOfCompanies)
 {
-    for (int companies = 0; companies < numberOfCompanies; companies++)
+    list <CompanyDetails> :: iterator companies;
+    for (companies = employeeWageBuilder.companyWages.begin(); companies != employeeWageBuilder.companyWages.end(); companies++)
     {
-        int totalEmployees = employeeWageBuilder.companyWages[companies].totalEmployees;
-        int totalMonths = employeeWageBuilder.companyWages[companies].totalMonths;
+        int totalEmployees = (*companies).totalEmployees;
+        int totalMonths = (*companies).totalMonths;
         for (int employee = 0; employee < totalEmployees; employee++)
         {
             vector <int> monthlyWages;
             for (int month = 0; month < totalMonths; month++)
             {
                 sleep(1.9);
-                int empWage = employeeWageBuilder.getEmployeeWage(employeeWageBuilder.companyWages[companies]);
+                int empWage = employeeWageBuilder.getEmployeeWage(*companies);
                 monthlyWages.push_back(empWage);
                 cout << "Monthly Wage for Employee_" << (employee + 1) << " = " << empWage << endl;   
             }
-            writeFile("EmployeeWageDetails.csv", totalMonths, employee, monthlyWages, employeeWageBuilder.companyWages[companies].companyName);
+            writeFile("EmployeeWageDetails.csv", totalMonths, employee, monthlyWages, (*companies).companyName);
         }
     }
 }
 
 int main()
 {
-    
     int numberOfCompanies;
     cout << "\n Enter number of companies for calculating employee wage\n";
     cin >> numberOfCompanies;
