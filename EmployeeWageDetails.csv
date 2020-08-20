@@ -1,4 +1,6 @@
-Employee, Month_1, Month_2, Month_3
-Employee_1, 1760, 1280, 1840
-Employee_2, 1760, 1280, 1680
-Employee_3, 1680, 1600, 1600
+Company Name, Employee, Month_1, Month_2, Month_3, Month_4, Month_5, Month_6, Month_7, Month_8, Month_9, Month_10, Month_11, Month_12
+we, Employee_1, 60, 40
+we, Employee_2, 40, 40
+sd, Employee_1, 108, 144, 144, 144, 144, 108, 108, 108
+sd, Employee_2, 108, 144, 144, 144, 144, 144, 144, 144
+sd, Employee_3, 108, 108, 108, 108, 144, 144, 108, 144

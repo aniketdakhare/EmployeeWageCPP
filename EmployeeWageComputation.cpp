@@ -7,39 +7,56 @@
 
 using namespace std;
 
-vector <vector <int>> totalMonthlyWages;
-fstream fileStream;
-
-void writeFile(string file, int totalMonths)
+struct companyDetails
 {
-    fileStream.open(file, ios::out | ios::trunc);
+    string companyName;
+    int NUM_OF_WORKING_DAYS;
+    int MAX_HRS_IN_MONTH;
+    int EMP_RATE_PER_HOUR;
+    companyDetails()
+    {
+        cout << "\nEnter Company Name. \n";
+        cin >> companyName;
+        cout << "\nEnter total number of working days per month. \n";
+        cin >> NUM_OF_WORKING_DAYS;
+            cout << "\nEnter maximum working hours per month. \n";
+        cin >> MAX_HRS_IN_MONTH;
+            cout << "\nEnter employee rate per hour. \n";
+        cin >> EMP_RATE_PER_HOUR;
+    }
+};
+
+void writeFile(string file, int totalMonths, int employee, vector <int> wages, string companyName)
+{
+    fstream fileStream;
+    fileStream.open(file, ios::out | ios::app);
+    fileStream.seekg(0, ios::end);
     if (fileStream.is_open())
     {
-        fileStream << "Employee";
-        for (int month = 0; month < totalMonths ;month++)
+        if (fileStream.tellp() == 0)
         {
-            fileStream << ", Month_" << (month + 1);
-        }
-        vector <int> wages;
-        for (int employee = 0; employee < totalMonthlyWages.size(); employee++)
-        {
-            fileStream << "\nEmployee_" << (employee + 1);
-            wages = totalMonthlyWages[employee];
-            for (int month = 0; month < totalMonths; month++)
+            fileStream << "Company Name, Employee";
+            for (int month = 0; month < 12 ;month++)
             {
-                fileStream << ", " << wages[month];
+                fileStream << ", Month_" << (month + 1);
             }
+        }
+        fileStream.seekg(0, ios::beg);
+        fileStream << "\n" << companyName << ", Employee_" << (employee + 1);
+        for (int month = 0; month < totalMonths; month++)
+        {
+            fileStream << ", " << wages[month];
         }
     }
     fileStream.close();
 }
 
-int getWorkingHours()
+int getWorkingHours(struct companyDetails company)
 {
     const int IS_PART_TIME = 1;
     const int IS_FULL_TIME = 2;
-    const int NUM_OF_WORKING_DAYS = 20;
-    const int MAX_HRS_IN_MONTH = 100;
+    int NUM_OF_WORKING_DAYS = company.NUM_OF_WORKING_DAYS;
+    int MAX_HRS_IN_MONTH = company.MAX_HRS_IN_MONTH;
    
     int empHrs = 0;
     int totalEmpHrs = 0;
@@ -67,9 +84,10 @@ int getWorkingHours()
     return totalEmpHrs;
 }
 
-int main()
+void wageloader()
 {
-    const int EMP_RATE_PER_HOUR = 20;
+    struct companyDetails company;
+    int EMP_RATE_PER_HOUR = company.EMP_RATE_PER_HOUR;
     int totalEmployees;
     cout << "\nEnter total number of employees. \n";
     cin >> totalEmployees;
@@ -84,11 +102,28 @@ int main()
         for (int i = 0; i < totalMonths; i++)
         {
             sleep(1.5);
-            int empWage = getWorkingHours() * EMP_RATE_PER_HOUR;
+            int empWage = getWorkingHours(company) * EMP_RATE_PER_HOUR;
             monthlyWages.push_back(empWage);
             cout << "Monthly Wage for Employee_" << (i + 1) << " = " << empWage << endl;   
         }
-        totalMonthlyWages.push_back(monthlyWages);
+        writeFile("EmployeeWageDetails.csv", totalMonths, i, monthlyWages, company.companyName);
     }
-    writeFile("EmployeeWageDetails.csv", totalMonths);
+}
+
+int main()
+{
+    while (true)
+    {
+        int select;
+        cout << "\n Select your choice. \n1: Calculate Employee wage for your company. \n2: Exit\n";
+        cin >> select;
+        switch(select)
+        {
+            case 1:
+                wageloader();
+                break;
+            case 2:
+                exit(0);    
+        }
+    }
 }
