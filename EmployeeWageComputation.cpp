@@ -43,17 +43,12 @@ void writeFile(string file, int totalMonths, int employee, vector <int> wages, s
     {
         if (fileStream.tellp() == 0)
         {
-            fileStream << "Company Name, Employee";
-            for (int month = 0; month < 12 ;month++)
-            {
-                fileStream << ", Month_" << (month + 1);
-            }
+            fileStream << "Company Name, Employee, Day, Wages";
         }
         fileStream.seekg(0, ios::beg);
-        fileStream << "\n" << companyName << ", Employee_" << (employee + 1);
-        for (int month = 0; month < totalMonths; month++)
+        for (int day = 0; day < wages.size(); day++)
         {
-            fileStream << ", " << wages[month];
+            fileStream << "\n" << companyName << ", Employee_" << (employee + 1) << ", Day_" << (day + 1) << ", " << wages[day];
         }
     }
     fileStream.close();
@@ -62,14 +57,10 @@ void writeFile(string file, int totalMonths, int employee, vector <int> wages, s
 struct EmployeeWageBuilder
 {
     list <CompanyDetails> companyWages;
-    int getWorkingHours(CompanyDetails);
-    int getEmployeeWage(CompanyDetails company)
-    {
-        return getWorkingHours(company) * company.EMP_RATE_PER_HOUR;
-    }
+    vector <int> getDailyWages(CompanyDetails);
 };
 
-int EmployeeWageBuilder :: getWorkingHours(CompanyDetails company)
+vector <int> EmployeeWageBuilder :: getDailyWages(CompanyDetails company)
 {
     const int IS_PART_TIME = 1;
     const int IS_FULL_TIME = 2;
@@ -79,6 +70,7 @@ int EmployeeWageBuilder :: getWorkingHours(CompanyDetails company)
     int empHrs = 0;
     int totalEmpHrs = 0;
     int totalWorkingDays = 0;
+    vector <int> dailyWages;
     srand(time(0));
     
     while(totalEmpHrs <= MAX_HRS_IN_MONTH && totalWorkingDays < NUM_OF_WORKING_DAYS)
@@ -97,9 +89,10 @@ int EmployeeWageBuilder :: getWorkingHours(CompanyDetails company)
             default:
                 empHrs = 0;
         }
+        dailyWages.push_back(empHrs * company.EMP_RATE_PER_HOUR);
         totalEmpHrs += empHrs;
     }
-    return totalEmpHrs;
+    return dailyWages;
 }
 
 void wageloader(EmployeeWageBuilder employeeWageBuilder, int numberOfCompanies)
@@ -111,15 +104,13 @@ void wageloader(EmployeeWageBuilder employeeWageBuilder, int numberOfCompanies)
         int totalMonths = (*companies).totalMonths;
         for (int employee = 0; employee < totalEmployees; employee++)
         {
-            vector <int> monthlyWages;
+            vector <int> dailyWages;
             for (int month = 0; month < totalMonths; month++)
             {
                 sleep(1.9);
-                int empWage = employeeWageBuilder.getEmployeeWage(*companies);
-                monthlyWages.push_back(empWage);
-                cout << "Monthly Wage for Employee_" << (employee + 1) << " = " << empWage << endl;   
+                dailyWages = employeeWageBuilder.getDailyWages(*companies);
             }
-            writeFile("EmployeeWageDetails.csv", totalMonths, employee, monthlyWages, (*companies).companyName);
+            writeFile("EmployeeWageDetails.csv", totalMonths, employee, dailyWages, (*companies).companyName);
         }
     }
 }
