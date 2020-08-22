@@ -18,6 +18,14 @@ struct EmployeeWageDetails
     int wages;
 };
 
+struct MonthlyWageDetails
+{
+    string companyName;
+    string employeeName;
+    string Month;
+    int monthlyWage;
+};
+
 struct CompanyDetails
 {
     string companyName;
@@ -188,11 +196,48 @@ void insert()
     wageloader(employeeWageBuilder, numberOfCompanies);
 }
 
-CompanyDetails fetchCompanyDetails(string givenCompany)
+vector <MonthlyWageDetails> fetchMonthlyWageDetails()
 {
-    CompanyDetails companyDetails;
-    
-    return companyDetails;
+    int totalEmployees;
+    int totalMonths;
+    int totalDays;
+    string companyName;
+    vector <MonthlyWageDetails> monthlySalary;
+    list <EmployeeWageDetails> employeeDetails = readFile();
+    for(list <CompanyDetails> :: iterator company = companyWages.begin(); company != companyWages.end(); company++)
+    {
+        totalEmployees = (*company).totalEmployees;
+        totalMonths = (*company).totalMonths;
+        totalDays = (*company).NUM_OF_WORKING_DAYS;
+        companyName = (*company).companyName; 
+        
+        int count = 0;
+        for(list <EmployeeWageDetails> :: iterator employee = employeeDetails.begin(); count < employeeDetails.size(); employee++)
+        {
+            struct MonthlyWageDetails monthlyWageDetails;
+            monthlyWageDetails.companyName = companyName;
+            monthlyWageDetails.employeeName = (*employee).employee;
+            monthlyWageDetails.Month = (*employee).month;
+            int totalSalary = 0;
+            for(int day = 0; day < totalDays; day++)
+            {
+                totalSalary += (*employee).wages;
+                if (day < (totalDays - 1))
+                {
+                    employee++;
+                    count++;
+                } 
+            }
+            monthlyWageDetails.monthlyWage = totalSalary;
+            monthlySalary.push_back(monthlyWageDetails);        
+        }
+    }
+    cout << monthlySalary.size() << endl;
+    for(int i = 0; i < monthlySalary.size(); i++)
+    {
+        cout << "\nCompany Name: " <<  monthlySalary[i].companyName << "\nEmployee Name: "<<  monthlySalary[i].employeeName << "\nMonth: " << monthlySalary[i].Month << "\nMonthly Salary: " << monthlySalary[i].monthlyWage << "\n";
+    }
+    return monthlySalary;    
 }
 
 void displayByCompany()
@@ -201,54 +246,25 @@ void displayByCompany()
     cout << "\n Enter Company name.\n";
     cin >> givenCompany;
     
-    int totalEmployees;
-    int totalMonths;
-    int totalDays;
-    vector <int> monthlySalary;
+    vector <MonthlyWageDetails> monthlySalary = fetchMonthlyWageDetails();
 
-    list <EmployeeWageDetails> employeeDetails = readFile();
-    if(employeeDetails.size() != 0)
+    if(monthlySalary.size() != 0)
     {
-        for(list <CompanyDetails> :: iterator company = companyWages.begin(); company != companyWages.end(); company++)
-        {
-            if ((*company).companyName == givenCompany)
-            {
-                totalEmployees = (*company).totalEmployees;
-                totalMonths = (*company).totalMonths;
-                totalDays = (*company).NUM_OF_WORKING_DAYS;
-            }
-        }
+    //     for(int i = 0 ; i < monthlySalary.size(); i++)
+    //     {
+    //         if (monthlySalary[i].companyName == givenCompany)
+    //         {
+    //             cout << "\nCompany Name: " <<  monthlySalary[i].companyName << "\nEmployee Name: "<<  monthlySalary[i].employeeName << "\nMonth: " << monthlySalary[i].Month << "\nMonthly Salary: " << monthlySalary[i].monthlyWage << "\n";
+    //         }
+    //     }
+    // }
 
-        int count =0;
-        for(list <EmployeeWageDetails> :: iterator employee = employeeDetails.begin(); count < employeeDetails.size(); employee++)
-        {
-            if ((*employee).companyName == givenCompany)
-            {
-                int totalSalary = 0;
-                for(int day = 0; day < totalDays; day++)
-                {
-                    totalSalary += (*employee).wages;
-                    if (day < (totalDays - 1))
-                    {
-                        employee++;
-                        count++;
-                    } 
-                }
-                monthlySalary.push_back(totalSalary);
-            }
-            else
-            {
-                count++;
-            } 
-        }
-
-        for (int emp = 0; emp < totalEmployees; emp++)
-        {
-            for (int month = 0;month < totalMonths; month++)
-            {
-                cout << "\nCompany Name: " <<  givenCompany << "\nEmployee Name: "<<  "Employee_" << (emp + 1) << "\nMonth: " << (month + 1) << "\nMonthly Salary: " << monthlySalary[month] << "\n";
-            }
-        }
+        // for (int emp = 0; emp < totalEmployees; emp++)
+        // {
+        //     for (int month = 0;month < totalMonths; month++)
+        //     {
+        //     }
+        // }
     }
     else
     {
@@ -256,12 +272,25 @@ void displayByCompany()
     }
 }
 
+void sortByMonthlyWages()
+{
+
+        // for (int emp = 0; emp < totalEmployees; emp++)
+        // {
+        //     for (int month = 0;month < totalMonths; month++)
+        //     {
+        //         cout << "\nCompany Name: " <<  companyName << "\nEmployee Name: "<<  "Employee_" << (emp + 1) << "\nMonth: " << (month + 1) << "\nMonthly Salary: " << monthlySalary[month] << "\n";
+        //     }
+        // }
+        // }
+}
+
 int main()
 {
     while (true)
     {
         int select;
-        cout << "\n Select your choice. \n1: Calculate Employee wage for your company. \n2: Display Employee's monthly wage details by company. \n3: Exit\n";
+        cout << "\n Select your choice. \n1: Calculate Employee wage for your company. \n2: Display Employee's monthly wage details by company. \n3: Sort by mothly Wages \n4: Exit\n";
         cin >> select;
         switch(select)
         {
@@ -272,6 +301,9 @@ int main()
                 displayByCompany();
                 break;
             case 3:
+                sortByMonthlyWages();
+                break;
+            case 4:
                 exit(0);    
         }
     }
