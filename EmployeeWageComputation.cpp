@@ -200,15 +200,26 @@ void wageloader(list <CompanyDetails> companyWages)
     }
 }
 
-vector <EmployeeWageDetails> getSortedList(vector <EmployeeWageDetails> detailsList)
+vector <EmployeeWageDetails> getSortedList(vector <EmployeeWageDetails> detailsList, int sortType)
 {
     for (int i = 0; i < detailsList.size(); i++)
     {
         for (int j = 0; j < (detailsList.size() - i); j++)
         {
-            if (detailsList[j].monthlyWage < detailsList[j + 1].monthlyWage)
+            switch (sortType)
             {
-                swap(detailsList[j], detailsList[j + 1]);
+                case 1:
+                    if (detailsList[j].monthlyWage < detailsList[j + 1].monthlyWage)
+                    {
+                        swap(detailsList[j], detailsList[j + 1]);
+                    }
+                    break;
+                case 2:
+                    if (detailsList[j].perDayWage < detailsList[j + 1].perDayWage)
+                    {
+                        swap(detailsList[j], detailsList[j + 1]);
+                    }
+                break;
             }
         }
     }
@@ -249,10 +260,24 @@ vector <EmployeeWageDetails> getMonthlyWagesList(list <CompanyDetails> companyWa
     return monthlyWagesList;
 }
 
+void sortByDaillyWage()
+{
+    list <EmployeeWageDetails> employeeDetails = readFile();
+    vector <EmployeeWageDetails> dailyWagesList(employeeDetails.begin(), employeeDetails.end());
+    vector <EmployeeWageDetails> sortedDailyWagesList = getSortedList(dailyWagesList, 2);
+    for(int employeeCount = 0; employeeCount < sortedDailyWagesList.size(); employeeCount++)
+    {
+        cout << "\nCompany Name: " << sortedDailyWagesList[employeeCount].companyName << "\nEmployee Name: " << sortedDailyWagesList[employeeCount].employee;
+        cout << "\nMonth: " << sortedDailyWagesList[employeeCount].month << "\nDay: " << sortedDailyWagesList[employeeCount].day;
+        cout << "\nWage Per Day: " << sortedDailyWagesList[employeeCount].perDayWage << endl;
+        cout << "\n----------------------------------------------------------------------------------" << endl;
+    }
+}
+
 void sortByMonthlyWage(list <CompanyDetails> *companyWages)
 {
     vector <EmployeeWageDetails> monthlyWagesList = getMonthlyWagesList(*companyWages);
-    vector <EmployeeWageDetails> sortedMonthlyWagesList = getSortedList(monthlyWagesList);
+    vector <EmployeeWageDetails> sortedMonthlyWagesList = getSortedList(monthlyWagesList, 1);
     for(int employeeCount = 0; employeeCount < sortedMonthlyWagesList.size(); employeeCount++)
     {
         cout << "\nCompany Name: " << sortedMonthlyWagesList[employeeCount].companyName << "\nEmployee Name: " << sortedMonthlyWagesList[employeeCount].employee;
@@ -275,7 +300,8 @@ void selectOptions()
     while (true)
     {
         int select;
-        cout << "\nSelect your choice. \n1: Calculate Employee wage for your company. \n2: Display Total wage by company. \n3: Display sorted list by monthly wages. \n4: Exit\n";
+        cout << "\nSelect your choice. \n1: Calculate Employee wage for your company. \n2: Display Total wage by company. ";
+        cout << "\n3: Display sorted list by monthly wages. \n4: Display sorted list by Daily wages. \n5: Exit\n";
         cin >> select;
         switch(select)
         {
@@ -289,7 +315,13 @@ void selectOptions()
                 sortByMonthlyWage(&companyWages);
                 break;
             case 4:
-                exit(0);    
+                sortByDaillyWage();
+                break;    
+            case 5:
+                exit(0);
+                break;
+            default:
+                cout << "\nInvalid Input." << endl;   
         }
         cout<< "\n----------------------------------------------------------------------------------" << endl;
     }
