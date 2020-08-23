@@ -260,6 +260,39 @@ vector <EmployeeWageDetails> getMonthlyWagesList(list <CompanyDetails> companyWa
     return monthlyWagesList;
 }
 
+void display(EmployeeWageDetails employeeWageDetails)
+{
+    cout << "\nCompany Name: " << employeeWageDetails.companyName << "\nEmployee Name: " << employeeWageDetails.employee;
+    cout << "\nMonth: " << employeeWageDetails.month << "\nDay: " << employeeWageDetails.day;
+    cout << "\nWage Per Day: " << employeeWageDetails.perDayWage << endl;
+    cout << "\n----------------------------------------------------------------------------------" << endl;
+}
+
+void displayByWagePerHour(list <CompanyDetails> companyWages)
+{
+    int wagePerHour;
+    cout << "\nEnter Wage per Hour:  ";
+    cin >> wagePerHour;
+
+    list <EmployeeWageDetails> employeeDetails = readFile();
+
+    list <CompanyDetails> :: iterator companies;
+    for (companies = companyWages.begin(); companies != companyWages.end(); companies++)
+    {
+        if (companies->EMP_RATE_PER_HOUR == wagePerHour)
+        {
+            for(list <EmployeeWageDetails> :: iterator employee = employeeDetails.begin(); employee != employeeDetails.end(); employee++)
+            {
+               if (companies->companyName == employee->companyName)
+                {
+                    display((*employee));
+                } 
+            }
+        }
+        
+    }
+}    
+
 void sortByDaillyWage()
 {
     list <EmployeeWageDetails> employeeDetails = readFile();
@@ -267,10 +300,7 @@ void sortByDaillyWage()
     vector <EmployeeWageDetails> sortedDailyWagesList = getSortedList(dailyWagesList, 2);
     for(int employeeCount = 0; employeeCount < sortedDailyWagesList.size(); employeeCount++)
     {
-        cout << "\nCompany Name: " << sortedDailyWagesList[employeeCount].companyName << "\nEmployee Name: " << sortedDailyWagesList[employeeCount].employee;
-        cout << "\nMonth: " << sortedDailyWagesList[employeeCount].month << "\nDay: " << sortedDailyWagesList[employeeCount].day;
-        cout << "\nWage Per Day: " << sortedDailyWagesList[employeeCount].perDayWage << endl;
-        cout << "\n----------------------------------------------------------------------------------" << endl;
+        display(sortedDailyWagesList[employeeCount]);
     }
 }
 
@@ -301,7 +331,8 @@ void selectOptions()
     {
         int select;
         cout << "\nSelect your choice. \n1: Calculate Employee wage for your company. \n2: Display Total wage by company. ";
-        cout << "\n3: Display sorted list by monthly wages. \n4: Display sorted list by Daily wages. \n5: Exit\n";
+        cout << "\n3: Display sorted list by monthly wages. \n4: Display sorted list by Daily wages.";
+        cout << "\n5: Display Employee Details as per given wage per hour.  \n6: Exit\n";
         cin >> select;
         switch(select)
         {
@@ -316,8 +347,11 @@ void selectOptions()
                 break;
             case 4:
                 sortByDaillyWage();
-                break;    
+                break;
             case 5:
+                displayByWagePerHour(companyWages);
+                break;
+            case 6:
                 exit(0);
                 break;
             default:
