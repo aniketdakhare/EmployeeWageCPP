@@ -15,7 +15,8 @@ struct EmployeeWageDetails
     string employee;
     string month;
     string day;
-    int wages;
+    int monthlyWage;
+    int perDayWage;
 };
 
 struct CompanyDetails
@@ -29,17 +30,17 @@ struct CompanyDetails
 
     CompanyDetails()
     {
-        cout << "\nEnter Company Name. \n";
+        cout << "\nEnter Company Name:  ";
         cin >> companyName;
-        cout << "\nEnter total number of working days per month. \n";
+        cout << "\nEnter total number of working days per month:  ";
         cin >> NUM_OF_WORKING_DAYS;
-        cout << "\nEnter maximum working hours per month. \n";
+        cout << "\nEnter maximum working hours per month:  ";
         cin >> MAX_HRS_IN_MONTH;
-        cout << "\nEnter employee rate per hour. \n";
+        cout << "\nEnter employee rate per hour:  ";
         cin >> EMP_RATE_PER_HOUR;
-        cout << "\nEnter total number of employees. \n";
+        cout << "\nEnter total number of employees:  ";
         cin >> totalEmployees;
-        cout << "\nEnter nunber of Months. \n";
+        cout << "\nEnter nunber of Months:  ";
         cin >> totalMonths;
     }
 };
@@ -60,9 +61,7 @@ vector <int> EmployeeWageBuilder :: getDailyWages(CompanyDetails company)
     int NUM_OF_WORKING_DAYS = company.NUM_OF_WORKING_DAYS;
     int MAX_HRS_IN_MONTH = company.MAX_HRS_IN_MONTH;
    
-    int empHrs = 0;
-    int totalEmpHrs = 0;
-    int totalWorkingDays = 0;
+    int empHrs = 0, totalEmpHrs = 0, totalWorkingDays = 0;
     vector <int> dailyWages;
     srand(time(0));
     
@@ -91,7 +90,7 @@ vector <int> EmployeeWageBuilder :: getDailyWages(CompanyDetails company)
 void EmployeeWageBuilder :: displayByCompany()
 {
     string givenCompany;
-    cout << "\n Enter Company name.\n";
+    cout << "\nEnter Company name:  ";
     cin >> givenCompany;
     
     int totalWage = 0;
@@ -101,10 +100,12 @@ void EmployeeWageBuilder :: displayByCompany()
     {
         if ((*employee).companyName == givenCompany)
         {
-            totalWage += (*employee).wages;
+            totalWage += (*employee).perDayWage;
         }
     }
-    cout << "Total Wage of " << givenCompany << "is: " << totalWage << endl;
+
+    cout<< "\n----------------------------------------------------------------------------------" << endl;
+    cout << "\nTotal Wage of " << givenCompany << " Company is: " << totalWage << endl;
 }
 
 vector<string> split(const string& line, char delimiter)
@@ -146,7 +147,7 @@ list <EmployeeWageDetails> readFile()
                 employeeDetails.employee = details[1];
                 employeeDetails.month = details[2];
                 employeeDetails.day = details[3];
-                employeeDetails.wages = stoi(details[4]);
+                employeeDetails.perDayWage = stoi(details[4]);
                 employeeWages.push_back(employeeDetails);
             }
         }
@@ -155,7 +156,7 @@ list <EmployeeWageDetails> readFile()
     return employeeWages;
 } 
 
-void writeFile(string file, int month, int employee, vector <int> wages, string companyName)
+void writeFile(string file, vector <int> wages,EmployeeWageDetails employeeWageDetails)
 {
     fstream fileStream;
     fileStream.open(file, ios::out | ios::app);
@@ -169,13 +170,14 @@ void writeFile(string file, int month, int employee, vector <int> wages, string 
         fileStream.seekg(0, ios::beg);
         for (int day = 0; day < wages.size(); day++)
         {
-            fileStream << "\n" << companyName << ",Employee_" << (employee + 1) << ",Month_" << month << ",Day_" << (day + 1) << "," << wages[day];
+            fileStream << "\n" << employeeWageDetails.companyName  << employeeWageDetails.employee;
+            fileStream << employeeWageDetails.month << ",Day_" << (day + 1) << "," << wages[day];
         }
     }
     fileStream.close();
 }
 
-void wageloader(int numberOfCompanies, list <CompanyDetails> companyWages)
+void wageloader(list <CompanyDetails> companyWages)
 {
     struct EmployeeWageBuilder employeeWageBuilder;
     list <CompanyDetails> :: iterator companies;
@@ -188,40 +190,92 @@ void wageloader(int numberOfCompanies, list <CompanyDetails> companyWages)
             for (int month = 0; month < totalMonths; month++)
             {
                 sleep(1.9);
-                writeFile("EmployeeWageDetails.csv", (month + 1), employee, employeeWageBuilder.getDailyWages(*companies), (*companies).companyName);
+                struct EmployeeWageDetails employeeWageDetails;
+                employeeWageDetails.companyName = (*companies).companyName;
+                employeeWageDetails.month = ",Month_" + to_string(month + 1);
+                employeeWageDetails.employee = ",Employee_" + to_string(employee + 1);
+                writeFile("EmployeeWageDetails.csv", employeeWageBuilder.getDailyWages(*companies), employeeWageDetails);
             }
         }
     }
 }
 
+vector <EmployeeWageDetails> getSortedList(vector <EmployeeWageDetails> detailsList)
+{
+    for (int i = 0; i < detailsList.size(); i++)
+    {
+        for (int j = 0; j < (detailsList.size() - i); j++)
+        {
+            if (detailsList[j].monthlyWage < detailsList[j + 1].monthlyWage)
+            {
+                swap(detailsList[j], detailsList[j + 1]);
+            }
+        }
+    }
+    return detailsList;
+}
+
+vector <EmployeeWageDetails> getMonthlyWagesList(list <CompanyDetails> companyWages)
+{
+    list <EmployeeWageDetails> employeeDetails = readFile();
+    vector <EmployeeWageDetails> monthlyWagesList;
+    list <CompanyDetails> :: iterator companies;
+    for (companies = companyWages.begin(); companies != companyWages.end(); companies++)
+    {
+        for(int empCount = 1; empCount <= companies->totalEmployees; empCount++)
+        {
+            for(int monthCount = 1; monthCount <= companies->totalMonths; monthCount++)
+            {
+                int monthlySalary = 0;
+                string month = ("Month_" + to_string(monthCount));
+                string employeeName = ("Employee_" + to_string(empCount));
+                struct EmployeeWageDetails employeeWageDetails;
+
+                for(list <EmployeeWageDetails> :: iterator employee = employeeDetails.begin(); employee != employeeDetails.end(); employee++)
+                {
+                    if (companies->companyName == employee->companyName && employee->month == month && employee->employee == employeeName)
+                    {
+                        monthlySalary += employee->perDayWage;
+                    } 
+                }
+                employeeWageDetails.companyName = companies->companyName;
+                employeeWageDetails.employee = employeeName;
+                employeeWageDetails.month = month;
+                employeeWageDetails.monthlyWage = monthlySalary;
+                monthlyWagesList.push_back(employeeWageDetails);
+            }
+        }
+    }
+    return monthlyWagesList;
+}
+
+void sortByMonthlyWage(list <CompanyDetails> *companyWages)
+{
+    vector <EmployeeWageDetails> monthlyWagesList = getMonthlyWagesList(*companyWages);
+    vector <EmployeeWageDetails> sortedMonthlyWagesList = getSortedList(monthlyWagesList);
+    for(int employeeCount = 0; employeeCount < sortedMonthlyWagesList.size(); employeeCount++)
+    {
+        cout << "\nCompany Name: " << sortedMonthlyWagesList[employeeCount].companyName << "\nEmployee Name: " << sortedMonthlyWagesList[employeeCount].employee;
+        cout << "\nMonth: " << sortedMonthlyWagesList[employeeCount].month << "\nWage per month: " << sortedMonthlyWagesList[employeeCount].monthlyWage << endl;
+        cout<< "\n----------------------------------------------------------------------------------" << endl;
+    }
+}
+
 void insert(list <CompanyDetails> *companyWages)
 {
-    int numberOfCompanies;
-    cout << "\n Enter number of companies for calculating employee wage\n";
-    cin >> numberOfCompanies;
-    for (int i = 0; i < numberOfCompanies; i++)
-    {
-        struct CompanyDetails company;
-        companyWages->push_back(company);
-    }
-    wageloader(numberOfCompanies, *companyWages);
+    struct CompanyDetails company;
+    companyWages->push_back(company);
+    wageloader(*companyWages);
 }
 
-CompanyDetails fetchCompanyDetails(string givenCompany)
-{
-    CompanyDetails companyDetails;
-    
-    return companyDetails;
-}
-
-int main()
+void selectOptions()
 {
     struct EmployeeWageBuilder employeeWageBuilder;
     list <CompanyDetails> companyWages;
     while (true)
     {
         int select;
-        cout << "\n Select your choice. \n1: Calculate Employee wage for your company. \n2: Display Total wage by company. \n3: Exit\n";
+        cout << "\nSelect your choice. \n1: Calculate Employee wage for your company. \n2: Display Total wage by company. \n3: Display sorted list by monthly wages. \n4: Exit\n";
         cin >> select;
         switch(select)
         {
@@ -232,7 +286,16 @@ int main()
                 employeeWageBuilder.displayByCompany();
                 break;
             case 3:
+                sortByMonthlyWage(&companyWages);
+                break;
+            case 4:
                 exit(0);    
         }
+        cout<< "\n----------------------------------------------------------------------------------" << endl;
     }
+}
+
+int main()
+{
+    selectOptions();
 }
